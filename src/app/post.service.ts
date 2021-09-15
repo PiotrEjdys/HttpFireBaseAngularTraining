@@ -1,11 +1,13 @@
 import { HttpClient } from "@angular/common/http";
 import { EventEmitter, Injectable } from "@angular/core";
-import { map } from "rxjs/operators";
+import { Subject, throwError } from "rxjs";
+import { catchError, map } from "rxjs/operators";
 import { Post } from "./post.model";
 
 @Injectable({providedIn: 'root'})
 export class PostsService{
-  changeData= new EventEmitter<Post[]>();
+  error = new Subject<string>();
+
 
   constructor(private http: HttpClient){
 
@@ -16,7 +18,8 @@ export class PostsService{
       'https://backend-training-a33f5-default-rtdb.europe-west1.firebasedatabase.app/posts.json',
       postData).subscribe(responseData=>{
         console.log(responseData);
-
+      },error=>{
+        this.error.next(error.error.error);
       });
   }
 
@@ -31,8 +34,11 @@ export class PostsService{
         }
       }
       return postsArray;
+    }),
+    catchError(errorRes => {
+      return throwError(errorRes);
     })
-    )
+    );
   }
   deletePosts(){
     return this.http.delete('https://backend-training-a33f5-default-rtdb.europe-west1.firebasedatabase.app/posts.json');
