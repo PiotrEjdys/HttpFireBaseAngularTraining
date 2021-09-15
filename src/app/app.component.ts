@@ -1,17 +1,17 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { map} from 'rxjs/operators'
-import { Post } from './post.model';
-import { PostsService } from './post.service';
-import { Subscription } from 'rxjs';
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { map } from "rxjs/operators";
+import { Post } from "./post.model";
+import { PostsService } from "./post.service";
+import { Subscription } from "rxjs";
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: "app-root",
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.css"],
 })
 export class AppComponent implements OnInit, OnDestroy {
-  loadedPosts:Post[] = [];
+  loadedPosts: Post[] = [];
   isFetching = false;
   error = null;
   private errorSub: Subscription;
@@ -19,59 +19,62 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(private http: HttpClient, private postsService: PostsService) {}
 
   ngOnInit() {
-    this.errorSub = this.postsService.error.subscribe(errorMessage => {
-      this.error =errorMessage;
+    this.errorSub = this.postsService.error.subscribe((errorMessage) => {
+      this.error = errorMessage;
     });
     this.isFetching = true;
-    this.postsService.fetchPost().subscribe(post=>{
-      this.isFetching = false;
-      this.loadedPosts = post;
-    },error=>{
-      this.isFetching = false;
-      this.error = error.error.error;
-    });
+    this.postsService.fetchPost().subscribe(
+      (post) => {
+        this.isFetching = false;
+        this.loadedPosts = post;
+      },
+      (error) => {
+        this.isFetching = false;
+        this.error = error.error.error;
+      }
+    );
   }
 
-  onCreatePost(postData: Post ) {
+  onCreatePost(postData: Post) {
     // Send Http request
     // console.log(postData);
-    this.postsService.createAndStorePost(postData.title,postData.content);
-    setTimeout(()=>{
+    this.postsService.createAndStorePost(postData.title, postData.content);
+    setTimeout(() => {
       this.onFetchPosts();
-    },3000)
+    }, 3000);
   }
 
   onFetchPosts() {
     // Send Http request
     this.isFetching = true;
-    this.postsService.fetchPost().subscribe(post=>{
-      this.isFetching = false;
-      this.loadedPosts = post;
-    },error=>{
-      this.isFetching = false;
-      this.error = error.error.error;
-    });
+    this.postsService.fetchPost().subscribe(
+      (post) => {
+        this.isFetching = false;
+        this.loadedPosts = post;
+      },
+      (error) => {
+        this.isFetching = false;
+        this.error = error.error.error;
+      }
+    );
   }
 
   onClearPosts() {
     // Send Http request
-    this.postsService.deletePosts().subscribe(()=>{
-      console.log('Deleted');
-      this.loadedPosts= [];
-
+    this.postsService.deletePosts().subscribe(() => {
+      console.log("Deleted");
+      this.loadedPosts = [];
     });
     // this.onFetchPosts();
   }
 
-  onHandlingError(){
+  onHandlingError() {
     this.error = null;
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.errorSub.unsubscribe();
   }
-
-
 }
 // {
 //   "rules": {
